@@ -1,0 +1,25 @@
+<% provide(:title, 'All Users') %>
+<h1>ユーザ一覧</h1>
+
+<div class="col-md-10 col-md-offset-1">
+  <%= form_tag(import_users_path(format: :csv), multipart: true, method: :post) do %>
+    <%= file_field_tag :file, class: "btn btn-default" %>
+    <%= submit_tag "CSVをインポート", class: "btn btn-md btn-primary btn-width" %>
+  <% end %>
+</div>
+
+<div class="col-md-10 col-md-offset-1">
+  <table class="table table-condensed table-hover" id="table-users">
+    <thead>
+      <tr>
+        <th><%= User.human_attribute_name :name %></th>
+      </tr>
+    </thead>
+
+    <% @users.each do |user| %>
+      <tr>
+        <td><%= link_to user.name, user %></td>
+      </tr>
+    <% end %>
+  </table>
+</div>
