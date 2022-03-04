@@ -1,14 +1,15 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :edit, :update, :destroy]
-  before_action :logged_in_user, only: [:index, :show, :edit, :update, :destroy]
+  before_action :set_user, only: [:show, :edit, :update, :destroy, :update_basic_info]
+  before_action :logged_in_user, only: [:index, :show, :edit, :update, :destroy, :update_basic_info]
   before_action :correct_user, only: [:edit, :update]
-  before_action :admin_user, only: [:destroy]
+  before_action :admin_user, only: [:destroy, :update_basic_info]
   
   def index
     @users = User.all
   end
   
   def csv_import
+    flash[:success] = 'CSVファイルを読み込みました。'
     User.import(params[:file])
     redirect_to users_url
   end
@@ -49,10 +50,27 @@ class UsersController < ApplicationController
     redirect_to users_url
   end
   
+  def update_basic_info
+    if @user.update_attributes(basic_info_params)
+      flash[:success] = "#{@user.name}の基本情報を更新しました。"
+    else
+      flash[:danger] = "#{@user.name_was}の更新は失敗しました。<br>" +
+      @user.errors.full_messages.join("<br>")
+    end
+    redirect_to users_url
+  end
+  
   private
   
     def user_params
-      params.require(:user).permit(:name, :email, :password, :password_confirmation)
+      params.require(:user).permit(:name, :email, :affiliation, :password, :password_confirmation)
+    end
+    
+    def basic_info_params
+      params.require(:user).permit(
+        :name, :email, :affiliation, :employee_number, :uid, :password,
+        :basic_work_time, :designated_work_start_time, :designated_work_end_time
+      )
     end
     
     def set_user

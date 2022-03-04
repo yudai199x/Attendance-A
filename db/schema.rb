@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20220220185726) do
+ActiveRecord::Schema.define(version: 20220226080523) do
 
   create_table "users", force: :cascade do |t|
     t.string "name"
@@ -20,7 +20,16 @@ ActiveRecord::Schema.define(version: 20220220185726) do
     t.string "password_digest"
     t.string "remember_digest"
     t.boolean "admin", default: false
+    t.string "affiliation"
+    t.integer "employee_number"
+    t.integer "uid"
+    t.datetime "basic_work_time", default: "2022-02-26 23:00:00"
+    t.datetime "designated_work_start_time", default: "2022-02-27 00:00:00"
+    t.datetime "designated_work_end_time", default: "2022-02-27 09:00:00"
+    t.boolean "superior", default: false
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["employee_number"], name: "index_users_on_employee_number", unique: true
+    t.index ["uid"], name: "index_users_on_uid", unique: true
   end
 
 end

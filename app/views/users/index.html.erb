@@ -8,14 +8,30 @@
   <% end %>
 </div>
 
-<div class="col-md-10 all-users">
+<div class="col-md-12 all-users">
   <% @users.each do |user| %>
     <p>
       <% if current_user.admin? && !current_user?(user) %>
         <%= user.name %><br>
         |&nbsp<%= link_to "削除", user, method: :delete,
         data: { confirm: "削除してよろしいですか？" }, 
-        class: "btn btn-primary" %>
+        class: "btn btn-primary" %><br>
+        <div class="panel-group">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <button class="btn btn-primary btn-lg"
+                  data-toggle="collapse"
+                  data-target="#collapse<%= user.id %>">編集</button>
+              </h4>
+            </div>
+            <div id="collapse<%= user.id %>" class="panel-collapse collapse">
+              <div class="panel-body">
+                <%= render 'form2', user: user %>
+              </div>
+            </div>
+          </div>
+        </div>
       <% end %>
     </p>
   <% end %>

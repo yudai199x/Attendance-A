@@ -1,11 +1,14 @@
 <%= form_with(model: @user, local: true) do |f| %>
-  <%= render 'shared/error_messages', object: @user %>
+  <%= render 'shared/error_messages', object: f.object %>
 
   <%= f.label :name, class: "label-form" %>
   <%= f.text_field :name, class: "form-control" %>
 
   <%= f.label :email, class: "label-form" %>
   <%= f.email_field :email, class: "form-control" %>
+  
+  <%= f.label :affiliation, class: "label-form" %>
+  <%= f.text_field :affiliation, class: "form-control" %>
 
   <%= f.label :password, class: "label-form" %>
   <%= f.password_field :password, class: "form-control" %>
