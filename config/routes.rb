@@ -11,5 +11,6 @@ Rails.application.routes.draw do
       patch 'update_basic_info'
     end      
     collection {post :csv_import}
+    resources :attendances, only: :update
   end
 end
