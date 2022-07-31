@@ -1,0 +1,76 @@
+<% provide(:title, 'chg-aprv') %>
+<div class="modal-dialog modal-lg modal-dialog-center">
+  <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <%= form_with(model: @user, url: attendances_update_chg_aprv_user_path, local: true, method: :patch) do |f| %>
+        <% @users.each do |user| %>
+          <h2 class="modal-title"><%= "【#{user.name}からの勤怠変更申請】" %></h2>
+          <div class="row">
+            <div class="col-md-12 center">
+              <table class="table table-bordered table-condensed table-hover" id="table-attendances">
+                <thead>
+                  <tr>
+                    <th rowspan="3">日付</th>
+                    <th rowspan="3">曜日</th>
+                    <th colspan="4">変更前</th>
+                    <th colspan="4">変更後</th>
+                    <th rowspan="3">備考</th>
+                    <th rowspan="3">指示者確認㊞</th>
+                    <th rowspan="3">変更</th>
+                    <th rowspan="3">勤怠を確認する</th>
+                  </tr>
+                  <tr>
+                    <th colspan="2">出社</th>
+                    <th colspan="2">退社</th>
+                    <th colspan="2">出社</th>
+                    <th colspan="2">退社</th>
+                  </tr>
+                  <tr>
+                    <th>時</th>
+                    <th>分</th>
+                    <th>時</th>
+                    <th>分</th>
+                    <th>時</th>
+                    <th>分</th>
+                    <th>時</th>
+                    <th>分</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @attendances.where(user_id: user.id).each do |day| %>
+                    <%= f.fields_for "attendances[]", day do |attendance| %>
+                      <tr>
+                        <td><%= working_day(day.worked_on) %></td>
+                        <td><%= $days_of_the_week[day.worked_on.wday] %></td>
+                        <td><%= working_show(day.b4_started_at, "%H") %></td>
+                        <td><%= working_show(day.b4_started_at, "%M") %></td>
+                        <td><%= working_show(day.b4_finished_at, "%H") %></td>
+                        <td><%= working_show(day.b4_finished_at, "%M") %></td>
+                        <td><%= working_show(day.started_at, "%H") %></td>
+                        <td><%= working_show(day.started_at, "%M") %></td>
+                        <td><%= working_show(day.finished_at, "%H") %></td>
+                        <td><%= working_show(day.finished_at, "%M") %></td>
+                        <td><%= day.note %></td>
+                        <td><%= attendance.select :chg_status, ['なし', '申請中', '承認', '否認'], {}, { id: 'aprv-select', class: 'form-control' } %></td>
+                        <td><%= attendance.check_box :chg_chk %></td>
+                        <td><%= link_to "確認", user_path(user, date: day.worked_on.beginning_of_month), class: "btn btn-primary" %></td>
+                      </tr>
+                    <% end %>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% end %>
+        <div class="center">
+          <%= f.submit "変更を送信する", class: "btn btn-primary btn-overtime-aprv" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

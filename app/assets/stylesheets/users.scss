@@ -9,6 +9,28 @@
   vertical-align: middle;
 }
 
+/* 各申請のお知らせ */
+
+.notice-color {
+  color: red;
+}
+
+.notice-bordered {
+  border: solid medium red;
+  color: red;
+  font-weight: bold;
+}
+
+/* 勤怠ログ */
+
+.form-sch {
+  float: left;
+}
+
+#log-sch {
+  width: 7%;
+}
+
 /* ユーザー勤怠情報テーブル */
 
 #table-attendances {
@@ -20,6 +42,10 @@
     vertical-align: middle;
     text-align: center;
   }
+}
+
+.btn-monthly-aprv {
+  margin-top: 10px;
 }
 
 /* 入力フォーム */
@@ -41,4 +67,10 @@
 
 .all-users {
   margin-left: 25px;
+}
+
+/* モーダルウインドウの位置調整 */
+
+.modal-dialog-center {
+  padding-top: 10%;
 }

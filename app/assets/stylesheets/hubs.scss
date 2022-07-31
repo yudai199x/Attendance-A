@@ -1,0 +1,42 @@
+/* 拠点一覧テーブル */
+
+#table-hubs {
+  th {
+    vertical-align: bottom;
+    text-align: center;
+  }
+  td {
+    vertical-align: middle;
+    text-align: center;
+  }
+}
+
+.btn-hub {
+  float: left;
+}
+
+/* 入力フォーム */
+
+.label-add-hub {
+  margin-top: 5px;
+}
+
+.btn-add-hub {
+  margin-top: 10px;
+}
+
+/* モーダルウインドウの位置調整 */
+
+.modal-dialog-center {
+  padding-top: 10%;
+}
+
+/* 拠点情報編集モーダルウインドウ */
+
+.label-edit-hub {
+  margin-top: 5px;
+}
+
+.btn-edit-hub {
+  margin: 15px 0;
+}

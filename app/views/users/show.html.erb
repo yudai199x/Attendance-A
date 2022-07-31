@@ -3,9 +3,9 @@
   <table class="table table-bordered table-condensed user-table">
     <tr>
       <td id="month-switch">
-        <%= link_to "←", user_path(date: @first_day.prev_month), class: "btn btn-primary" %>　&emsp;
+        <%= link_to "←", user_path(date: @first_day.prev_month), class: "btn btn-#{@stby}" %>　&emsp;
         <%= l(@first_day, format: :middle) %>　時間管理表　&emsp;
-        <%= link_to "→", user_path(date: @first_day.next_month), class: "btn btn-primary" %>        
+        <%= link_to "→", user_path(date: @first_day.next_month), class: "btn btn-#{@stby}" %>        
       </td>
       <td>指定勤務開始時間　<%= format_basic_info(@user.designated_work_start_time) %>
       <br>指定勤務終了時間　<%= format_basic_info(@user.designated_work_end_time) %></td>
@@ -24,6 +24,34 @@
   </table>
 </div>
 
+<div>
+  <% if @user.superior? %>
+    <% if @aprv_sum > 0 && current_user?(@user) %>
+      <%= link_to "【所属長承認申請のお知らせ】", attendances_edit_monthly_aprv_user_path(date: @first_day), remote: true, class: "notice-color" %>
+      <span class="notice-bordered"><%= "#{@aprv_sum}件の通知があります" %></span>
+    <% else %>
+      【所属長承認申請のお知らせ】
+    <% end %><br>    
+    <% if @chg_sum > 0 && current_user?(@user) %>
+      <%= link_to "【勤怠変更申請のお知らせ】", attendances_edit_chg_aprv_user_path(date: @first_day), remote: true, class: "notice-color" %>
+      <span class="notice-bordered"><%= "#{@chg_sum}件の通知があります" %></span>
+    <% else %>
+      【勤怠変更申請のお知らせ】
+    <% end %><br>
+    <% if @overwork_sum > 0 && current_user?(@user) %>
+      <%= link_to "【残業申請のお知らせ】", attendances_edit_overtime_aprv_user_path(date: @first_day), remote: true, class: "notice-color" %>
+      <span class="notice-bordered"><%= "#{@overwork_sum}件の通知があります" %></span>
+    <% else %>
+      【残業申請のお知らせ】
+    <% end %>
+  <% end %>
+</div>
+
+<div>
+  <%= link_to "勤怠を編集", attendances_edit_one_month_user_path(date: @first_day), class: "btn btn-#{@stby}" %>
+  <%= link_to "CSV出力", user_path(date: @first_day, format: :csv), class: "btn btn-#{@stby}" %><br>
+  <%= link_to "勤怠修正ログ（承認済）", attendance_log_user_path, class: "btn btn-#{@stby}" %>
+</div>
 <div>
   <table class="table table-bordered table-condensed table-hover" id="table-attendances">
     <thead>
@@ -59,14 +87,14 @@
     <tbody>
       <% @attendances.each do |day| %>
         <tr>
-          <td><%= link_to "残業申請", '#', class: "btn btn-primary" %></td>
-          <td><%= l(day.worked_on, format: :short) %></td>
+          <td><%= link_to "残業申請", attendances_edit_overtime_req_user_path(date: day.worked_on), remote: true, class: "btn btn-#{@stby}" %></td>
+          <td><%= working_day(day.worked_on) %></td>
           <td><%= $days_of_the_week[day.worked_on.wday] %></td>
           <td><%= working_show(day.started_at, "%H") %></td>
           <td><%= working_show(day.started_at, "%M") %></td>
           <td>
             <% if btn_text = attendance_state(day) %>
-              <%= link_to "#{btn_text}", user_attendance_path(@user, day), method: :patch, class: "btn btn-block btn-primary" %>
+              <%= link_to "#{btn_text}", user_attendance_path(@user, day), method: :patch, class: "btn btn-block btn-#{@stby}" %>
             <% end %>
           </td>
           <td><%= working_show(day.finished_at, "%H") %></td>
@@ -74,16 +102,31 @@
           <td></td>
           <td>
             <% if day.started_at.present? && day.finished_at.present? %>
-              <%= str_times = working_times(day.started_at, day.finished_at) %>
+              <%= str_times = working_times(day.chg_next_day, day.started_at, day.finished_at) %>
               <% @total_working_times = @total_working_times.to_f + str_times.to_f %>
             <% end %>
           </td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
+          <td><%= day.note %></td>
+          <td><%= working_show(day.scheduled_at, "%H") if day.scheduled_at.present? %></td>
+          <td><%= working_show(day.scheduled_at, "%M") if day.scheduled_at.present? %></td>
+          <td><%= working_overtimes(day.overwork_next_day, day.scheduled_at, @user.designated_work_end_time) if day.scheduled_at.present? %></td>
+          <td><%= day.worked_contents %></td>
+          <td>
+            <% if day.overwork_status == "申請中" %>
+              <%= "#{day.confirmed_request}へ残業#{day.overwork_status}" %>&emsp;
+            <% elsif day.overwork_status == "承認" %>
+              <%= "残業#{day.overwork_status}済" %>&emsp;
+            <% elsif day.overwork_status == "否認" %>
+              <%= "残業#{day.overwork_status}" %>&emsp;
+            <% end %>
+            <% if day.chg_status == "申請中" %>
+              <%= "#{day.chg_confirmed}へ勤怠変更#{day.chg_status}" %>
+            <% elsif day.chg_status == "承認" %>
+              <%= "勤怠編集#{day.chg_status}済" %>
+            <% elsif day.chg_status == "否認" %>
+              <%= "勤怠編集#{day.chg_status}" %>
+            <% end %>
+          </td>
         </tr>
       <% end %>
     </tbody>
@@ -95,8 +138,32 @@
         <td colspan="6"></td>
         <td><%= format("%.2f", @total_working_times.to_f) %></td>
         <td colspan="5"></td>
-        <td></td>
+        <td>
+          <% if current_user?(@user) %>
+            <%= form_with(model: @user, url: attendances_update_monthly_req_user_path, local: true, method: :patch) do |f| %>
+              <%= f.fields_for "attendances[]", @attendance do |attendance| %>
+                所属長承認&emsp;
+                <% if @attendance.aprv_status.blank? %>
+                  未
+                <% elsif @attendance.aprv_status == "申請中" %>
+                  <%= "#{@attendance.aprv_confirmed}へ#{@attendance.aprv_status}" %>
+                <% elsif @attendance.aprv_status == "承認" %>
+                  <%= "#{@attendance.aprv_confirmed}から#{@attendance.aprv_status}済" %>
+                <% elsif @attendance.aprv_status == "否認" %>
+                  <%= "#{@attendance.aprv_confirmed}から#{@attendance.aprv_status}" %>
+                <% end %>
+                <%= attendance.collection_select :aprv_confirmed, @superior, :name, :name, { include_blank: true }, class: 'form-control' %>
+              <% end %>
+              <%= f.submit "申請", class: "btn btn-block btn-monthly-aprv btn-primary" %>
+            <% end %>
+          <% end %>
+        </td>
       </tr>
     </tfoot>    
   </table>
 </div>
+
+<div id="edit-overtime-req" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>
+<div id="edit-overtime-aprv" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>
+<div id="edit-chg-aprv" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>
+<div id="edit-monthly-aprv" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>

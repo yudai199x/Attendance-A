@@ -1,0 +1,14 @@
+<%= form_with(model: @hub, local: true) do |f| %>
+
+  <%= f.label :number, class: "label-#{yield(:class_text)}" %>
+  <%= f.text_field :number, class: "form-control" %>
+
+  <%= f.label :name, class: "label-#{yield(:class_text)}" %>
+  <%= f.text_field :name, class: "form-control" %>
+  
+  <%= f.label :worked_type, class: "label-#{yield(:class_text)}" %>
+  <%= f.text_field :worked_type, placeholder: "出勤または退勤を入力", class: "form-control" %>
+            
+  <%= f.submit yield(:button_text), class: "btn btn-primary btn-block btn-#{yield(:class_text)}" %>
+  
+<% end %>

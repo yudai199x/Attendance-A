@@ -1,0 +1,43 @@
+<% provide(:title, @user.name) %>
+<h1>勤怠ログ</h1>
+<div>
+  <%= form_with(url: attendance_log_user_path(@user), local: true, method: :get) do |f| %>
+    <div class="form-inline">
+      <%= f.date_select :select_year,
+        { end_year: Time.now.year, prompt: "年", discard_month: "true", discard_day: "true" },
+        { id: "log-sch", class: "form-control form-sch" } %>
+      <%= f.date_select :select_month,
+        { use_month_numbers: true, prompt: "月", discard_year: "true", discard_day: "true" },
+        { id: "log-sch", class: "form-control form-sch" } %>
+      <%= f.submit "検索", id: "log-sch", class: "form-control form-sch" %>
+    </div>
+  <% end %>
+  <table class="table table-bordered table-condensed table-hover" id="table-attendances">
+    <thead>
+      <tr>
+        <th>日付</th>
+        <th>変更前出社時間</th>
+        <th>変更前退社時間</th>
+        <th>変更後出社</th>
+        <th>変更後退社</th>
+        <th>指示者</th>
+        <th>承認日</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @first_day.present? %>
+        <% @attendances.each do |day| %>
+          <tr>
+            <td><%= day.worked_on %></td>
+            <td><%= working_show(day.b4_started_at, "%H:%M") %></td>
+            <td><%= working_show(day.b4_finished_at, "%H:%M") %></td>
+            <td><%= working_show(day.started_at, "%H:%M") %></td>
+            <td><%= working_show(day.finished_at, "%H:%M") %></td>
+            <td><%= day.chg_confirmed %></td>
+            <td><%= day.aprv_day %></td>
+          </tr>
+        <% end %>
+      <% end %>  
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,44 @@
+<% provide(:title, 'All Hubs') %>
+<% provide(:class_text, 'add-hub') %>
+<% provide(:button_text, '新規登録') %>
+<h1>拠点一覧</h1>
+<div>
+  <table class="table table-bordered table-condensed table-hover" id="table-hubs">
+    <thead>
+      <tr>
+        <th></th>
+        <th></th>
+        <th>拠点番号</th>
+        <th>拠点名</th>
+        <th>勤怠種類</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @hubs.each do |hub| %>
+        <tr>
+          <td><%= link_to "修正", edit_hub_path(hub), remote: true, class: "btn btn-hub btn-primary" %></td>
+          <td><%= link_to "削除", hub, method: :delete, data: { confirm: "削除してよろしいですか？" }, class: "btn btn-hub btn-primary" %></td>
+          <td><%= hub.number %></td>
+          <td><%= hub.name %></td>
+          <td><%= hub.worked_type %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <div class="panel-group">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <button class="btn btn-primary btn-lg" data-toggle="collapse" data-target="#add_hub">拠点情報追加</button>
+        </h4>
+      </div>
+      <div id="add_hub" class="panel-collapse collapse">
+        <div class="panel-body">
+          <%= render 'form' %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="edit" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20220305195811) do
+ActiveRecord::Schema.define(version: 20220726070320) do
 
   create_table "attendances", force: :cascade do |t|
     t.date "worked_on"
@@ -23,7 +23,30 @@ ActiveRecord::Schema.define(version: 20220305195811) do
     t.integer "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "overwork_next_day"
+    t.string "overwork_status"
+    t.boolean "overwork_chk"
+    t.boolean "chg_chk"
+    t.boolean "aprv_chk"
+    t.boolean "chg_next_day"
+    t.string "chg_confirmed"
+    t.string "chg_status"
+    t.datetime "b4_started_at"
+    t.datetime "b4_finished_at"
+    t.string "aprv_status"
+    t.string "aprv_confirmed"
+    t.date "aprv_day"
+    t.datetime "af_started_at"
+    t.datetime "af_finished_at"
     t.index ["user_id"], name: "index_attendances_on_user_id"
+  end
+
+  create_table "hubs", force: :cascade do |t|
+    t.integer "number"
+    t.string "name"
+    t.string "worked_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "users", force: :cascade do |t|
@@ -37,9 +60,9 @@ ActiveRecord::Schema.define(version: 20220305195811) do
     t.string "affiliation"
     t.integer "employee_number"
     t.integer "uid"
-    t.datetime "basic_work_time", default: "2022-03-19 23:00:00"
-    t.datetime "designated_work_start_time", default: "2022-03-20 00:00:00"
-    t.datetime "designated_work_end_time", default: "2022-03-20 09:00:00"
+    t.datetime "basic_work_time", default: "2022-07-23 23:00:00"
+    t.datetime "designated_work_start_time", default: "2022-07-24 00:00:00"
+    t.datetime "designated_work_end_time", default: "2022-07-24 09:00:00"
     t.boolean "superior", default: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["employee_number"], name: "index_users_on_employee_number", unique: true

@@ -1,3 +1,28 @@
-// Place all the styles related to the Attendances controller here.
-// They will automatically be included in application.css.
-// You can use Sass (SCSS) here: http://sass-lang.com/
+/* 勤怠編集ページ */
+
+.btn-one-month {
+  width: 21%;
+}
+
+#time-select {
+  display: inline;
+  width: 33%;
+}
+
+/* 残業承認ページ */
+
+.btn-overtime-aprv {
+  width: 22%;
+}
+
+#overtime-select {
+  display: inline;
+  width: 36%;
+}
+
+/* 所属長承認ページ */
+
+#aprv-select {
+  display: inline;
+}
+
