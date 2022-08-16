@@ -97,8 +97,8 @@
           <td><%= working_show(day.started_at, "%H") %></td>
           <td><%= working_show(day.started_at, "%M") %></td>
           <td>
-            <% if btn_text = attendance_state(day) && current_user?(@user) %>
-              <%= link_to "#{btn_text}", user_attendance_path(@user, day), method: :patch, class: "btn btn-block btn-primary" %>
+            <% if btn_text = attendance_state(day) %>
+              <%= link_to "#{btn_text}", user_attendance_path(@user, day), method: :patch, class: "btn btn-block btn-primary" if current_user?(@user) %>
             <% end %>
           </td>
           <td><%= working_show(day.finished_at, "%H") %></td>
