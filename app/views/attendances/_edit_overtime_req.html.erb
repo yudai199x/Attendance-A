@@ -24,19 +24,15 @@
                 </tr>
               </thead>
               <tbody>
-                <% @attendances.each do |day| %>
-                  <%= f.fields_for "attendances[]", day do |attendance| %>
-                    <% if day.worked_on == @attendance.worked_on %>
-                      <tr>
-                        <td><%= working_day(day.worked_on) %></td>
-                        <td><%= $days_of_the_week[day.worked_on.wday] %></td>
-                        <td><%= attendance.time_select :scheduled_at, { include_blank: true }, { id: 'overtime-select', class: 'form-control' } %></td>
-                        <td><%= attendance.check_box :overwork_next_day %></td>
-                        <td><%= attendance.text_field :worked_contents, class: "form-control" %></td>
-                        <td><%= attendance.collection_select :confirmed_request, @superior, :name, :name, { include_blank: true }, class: 'form-control' %></td>                         
-                      </tr>
-                    <% end %>
-                  <% end %>
+                <%= f.fields_for "attendances[]", @attendance do |attendance| %>
+                  <tr>
+                    <td><%= working_day(@attendance.worked_on) %></td>
+                    <td><%= $days_of_the_week[@attendance.worked_on.wday] %></td>
+                    <td><%= attendance.time_select :scheduled_at, { include_blank: true }, { id: 'overtime-select', class: 'form-control' } %></td>
+                    <td><%= attendance.check_box :overwork_next_day %></td>
+                    <td><%= attendance.text_field :worked_contents, class: "form-control" %></td>
+                    <td><%= attendance.collection_select :confirmed_request, @superior, :name, :name, { include_blank: true }, class: 'form-control' %></td>                         
+                  </tr>
                 <% end %>
               </tbody>
             </table>

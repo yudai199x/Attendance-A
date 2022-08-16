@@ -34,7 +34,7 @@
                         <td><%= $days_of_the_week[day.worked_on.wday] %></td>
                         <td><%= working_show(day.scheduled_at, "%H:%M") %></td>
                         <td><%= format_basic_info(user.designated_work_end_time) %></td>
-                        <td><%= working_overtimes(day.overwork_next_day, day.scheduled_at, user.designated_work_end_time) %></td>
+                        <td><%= working_overtimes(day.scheduled_at, user.designated_work_end_time, day.overwork_next_day) %></td>
                         <td><%= day.worked_contents %></td>
                         <td><%= attendance.select :overwork_status, ['なし', '申請中', '承認', '否認'], {}, { id: 'aprv-select', class: 'form-control' } %></td>
                         <td><%= attendance.check_box :overwork_chk %></td>

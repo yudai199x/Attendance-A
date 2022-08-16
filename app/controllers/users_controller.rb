@@ -30,11 +30,6 @@ class UsersController < ApplicationController
         csv_export(@attendances)
       end
     end
-    if current_user?(@user)
-      @stby = "primary enabled"
-    else
-      @stby = "default disabled"
-    end
     @attendance = @user.attendances.find_by(worked_on: @first_day)
     @worked_sum = @attendances.where.not(started_at: nil).count
     @overwork_sum = Attendance.where(worked_on: @first_day..@last_day, confirmed_request: @user.name, overwork_status: "申請中").count

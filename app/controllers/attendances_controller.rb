@@ -12,9 +12,10 @@ class AttendancesController < ApplicationController
     :update_one_month,:edit_chg_aprv, :update_chg_aprv, :update_monthly_req, :edit_monthly_aprv, :update_monthly_aprv
   ]
   before_action :superior_user, only: [:edit_overtime_req, :edit_one_month]
-  before_action :set_one_month, only: [:edit_one_month, :edit_overtime_req]
+  before_action :set_one_month, only: :edit_one_month
   
   UPDATE_ERROR_MSG = "勤怠登録に失敗しました。やり直してください。"
+  UPDATE_OVERTIME_ERROR_MSG = "残業申請に失敗しました。やり直してください。"
   UPDATE_ONE_MONTH_ERROR_MSG = "勤怠変更申請に失敗しました。やり直してください。"
   
   def update
@@ -42,17 +43,27 @@ class AttendancesController < ApplicationController
   end
   
   def update_overtime_req
-    overtime_req_params.each do |id, item|
-      if item["scheduled_at(4i)"].blank? || item["scheduled_at(5i)"].blank? || item[:worked_contents].blank? || item[:confirmed_request].blank? 
-        flash[:danger] = "未入力な項目があった為、申請をキャンセルしました。"
-      else
-        attendance = Attendance.find(id)
-        attendance.overwork_status = "申請中"
-        attendance.update_attributes(item)
-        flash[:success] = "残業申請を送信しました。"
+    ActiveRecord::Base.transaction do
+      overtime_req_params.each do |id, item|
+        if item["scheduled_at(4i)"].blank? || item["scheduled_at(5i)"].blank? || item[:worked_contents].blank? || item[:confirmed_request].blank? 
+          flash[:danger] = "未入力な項目があった為、申請をキャンセルしました。"
+        else
+          attendance = Attendance.find(id)
+          if attendance.started_at.present?
+            attendance.overwork_chk = '0'
+            attendance.overwork_status = "申請中"
+            attendance.update_attributes!(item)
+            flash[:success] = "残業申請を送信しました。"
+          else
+            flash[:danger] = "出社時間が必要です。"
+          end
+        end
       end
     end
-    redirect_to user_url(date: params[:date])
+    redirect_to @user
+  rescue ActiveRecord::RecordInvalid
+    flash[:danger] = UPDATE_OVERTIME_ERROR_MSG
+    redirect_to @user
   end
   
   def edit_overtime_aprv
@@ -90,15 +101,22 @@ class AttendancesController < ApplicationController
     flag = 0
     ActiveRecord::Base.transaction do
       chg_req_params.each do |id, item|
-        if item[:note].present? && item[:chg_confirmed].present?
-          flag += 1
-          attendance = Attendance.find(id)
-          if attendance.chg_status == "承認"
-            attendance.b4_started_at = attendance.af_started_at
-            attendance.b4_finished_at = attendance.af_finished_at
+        unless item["started_at(4i)"].blank? || item["started_at(5i)"].blank? || item["finished_at(4i)"].blank? || item["finished_at(5i)"].blank?
+          if item[:note].present? && item[:chg_confirmed].present?
+            attendance = Attendance.find(id)
+            unless attendance.chg_status == "申請中"
+              unless attendance.b4_started_at == attendance.started_at || attendance.b4_finished_at == attendance.finished_at
+                flag += 1
+                if attendance.chg_status == "承認"
+                  attendance.chg_chk = '0'
+                  attendance.b4_started_at = attendance.af_started_at
+                  attendance.b4_finished_at = attendance.af_finished_at
+                end
+                attendance.chg_status = "申請中"
+                attendance.update_attributes!(item)
+              end
+            end
           end
-          attendance.chg_status = "申請中"
-          attendance.update_attributes!(item)
         end
       end
     end
@@ -156,6 +174,7 @@ class AttendancesController < ApplicationController
       if item[:aprv_confirmed].present?
         flag += 1
         attendance = Attendance.find(id)
+        attendance.aprv_chk = '0'
         attendance.aprv_status = "申請中"
         attendance.update_attributes(item)
       end
@@ -194,9 +213,7 @@ class AttendancesController < ApplicationController
   private
     
     def overtime_req_params
-      params.require(:user).permit(
-        attendances: [:scheduled_at, :overwork_next_day, :worked_contents, :confirmed_request]
-      )[:attendances]
+      params.require(:user).permit(attendances: [:scheduled_at, :overwork_next_day, :worked_contents, :confirmed_request])[:attendances]
     end
     
     def overtime_aprv_params
@@ -204,9 +221,7 @@ class AttendancesController < ApplicationController
     end
     
     def chg_req_params
-      params.require(:user).permit(
-        attendances: [:started_at, :finished_at, :chg_next_day, :note, :chg_confirmed]
-      )[:attendances]
+      params.require(:user).permit(attendances: [:started_at, :finished_at, :chg_next_day, :note, :chg_confirmed])[:attendances]
     end
     
     def chg_aprv_params
@@ -223,9 +238,9 @@ class AttendancesController < ApplicationController
     
     def admin_or_correct_user
       @user = User.find(params[:user_id]) if @user.blank?
-      unless current_user?(@user) || current_user.admin?
+      if !current_user?(@user) || current_user.admin?
         flash[:danger] = "編集権限がありません。"
         redirect_to(root_url)
-      end  
+      end
     end
 end
