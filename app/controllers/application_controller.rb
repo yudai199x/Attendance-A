@@ -10,7 +10,7 @@ class ApplicationController < ActionController::Base
   end
   
   def all_users
-    @users = User.all
+    @users = User.all.order("id ASC")
   end
     
   def logged_in_user

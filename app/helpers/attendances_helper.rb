@@ -18,7 +18,7 @@ module AttendancesHelper
   
   def working_times(start, finish, overnight)
     overnight ? h = 24 : h = 0
-    format("%.2f", (((finish.floor_to(15.minutes) - start.floor_to(15.minutes)) / 60) / 60.0) + h)
+    format("%.2f", (((finish.hour - start.hour) * 60 + (finish.floor_to(15.minutes).min - start.floor_to(15.minutes).min)) / 60.0) + h)
   end
   
   def working_overtimes(skd_time, end_time, overnight)
