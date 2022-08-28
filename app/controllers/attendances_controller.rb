@@ -7,7 +7,7 @@ class AttendancesController < ApplicationController
     :update, :edit_overtime_req, :update_overtime_req, :edit_overtime_aprv, :update_overtime_aprv, :edit_one_month,
     :update_one_month,:edit_chg_aprv, :update_chg_aprv, :update_monthly_req, :edit_monthly_aprv, :update_monthly_aprv
   ]
-  before_action :admin_or_correct_user, omly: [
+  before_action :admin_or_correct_user, only: [
     :update, :edit_overtime_req, :update_overtime_req, :edit_overtime_aprv, :update_overtime_aprv, :edit_one_month,
     :update_one_month,:edit_chg_aprv, :update_chg_aprv, :update_monthly_req, :edit_monthly_aprv, :update_monthly_aprv
   ]
